@@ -81,6 +81,34 @@ class TestUploadSecurity(unittest.TestCase):
         self.assertNotEqual(filename, "profile.png")
         self.assertEqual(mock_s3.call_args.args[2], filename)
 
+    @patch("app.s3.upload_fileobj")
+    def test_valid_image_upload(self, mock_s3):
+        from io import BytesIO
+        from PIL import Image
+
+        image_data = BytesIO()
+        Image.new("RGB", (20, 20), "blue").save(
+            image_data, format="PNG"
+        )
+        image_data.seek(0)
+
+        response = self.client.post(
+            "/upload",
+            headers={
+                "Authorization": "Bearer ci-test-token"
+            },
+            data={
+                "file": (image_data, "customer.png")
+            },
+            content_type="multipart/form-data"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        mock_s3.assert_called_once()
+
+        filename = response.get_json()["filename"]
+        self.assertTrue(filename.endswith(".png"))
+
 
 if __name__ == "__main__":
     unittest.main()
