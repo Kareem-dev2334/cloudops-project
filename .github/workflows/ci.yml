@@ -40,3 +40,8 @@ jobs:
           AWS_EC2_METADATA_DISABLED: "true"
         run: python -m unittest discover -s tests -v
 
+            - name: Build backend Docker image
+        run: docker build -f Dockerfile.backend -t cloudops-backend:ci .
+
+      - name: Build frontend Docker image
+        run: docker build -f Dockerfile -t cloudops-web:ci .
