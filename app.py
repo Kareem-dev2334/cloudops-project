@@ -56,8 +56,8 @@ def users():
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
-expected_token = os.environ.get("UPLOAD_API_TOKEN")
-authorization = request.headers.get("Authorization", "")
+    expected_token = os.environ.get("UPLOAD_API_TOKEN")
+    authorization = request.headers.get("Authorization", "")
 
     if not expected_token:
         return jsonify({"error": "Authentication not configured"}), 503
