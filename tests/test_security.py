@@ -109,6 +109,27 @@ class TestUploadSecurity(unittest.TestCase):
         filename = response.get_json()["filename"]
         self.assertTrue(filename.endswith(".png"))
 
+    @patch("app.s3.upload_fileobj")
+    def test_oversized_upload(self, mock_s3):
+        from io import BytesIO
+
+        response = self.client.post(
+            "/upload",
+            headers={
+                "Authorization": "Bearer ci-test-token"
+            },
+            data={
+                "file": (
+                    BytesIO(b"x" * (6 * 1024 * 1024)),
+                    "large.jpg"
+                )
+            },
+            content_type="multipart/form-data"
+        )
+
+        self.assertEqual(response.status_code, 413)
+        mock_s3.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()
