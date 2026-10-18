@@ -130,6 +130,66 @@ class TestUploadSecurity(unittest.TestCase):
         self.assertEqual(response.status_code, 413)
         mock_s3.assert_not_called()
 
+class TestUsersSecurity(unittest.TestCase):
+
+    def setUp(self):
+        self.client = app.test_client()
+        self.env_patch = patch.dict(
+            os.environ, {"USERS_API_TOKEN": "ci-users-token"}
+        )
+        self.env_patch.start()
+        self.addCleanup(self.env_patch.stop)
+
+    @patch("app.get_db_connection")
+    def test_missing_token(self, mock_db):
+        response = self.client.get("/users")
+
+        self.assertEqual(response.status_code, 401)
+        mock_db.assert_not_called()
+
+    @patch("app.get_db_connection")
+    def test_invalid_token(self, mock_db):
+        response = self.client.get(
+            "/users",
+            headers={"Authorization": "Bearer wrong-token"}
+        )
+
+        self.assertEqual(response.status_code, 401)
+        mock_db.assert_not_called()
+
+    @patch("app.get_db_connection")
+    def test_missing_configuration(self, mock_db):
+        os.environ.pop("USERS_API_TOKEN", None)
+
+        response = self.client.get("/users")
+
+        self.assertEqual(response.status_code, 503)
+        mock_db.assert_not_called()
+
+    @patch("app.get_db_connection")
+    def test_valid_token(self, mock_db):
+        connection = mock_db.return_value
+        cursor = connection.cursor.return_value
+        cursor.fetchall.return_value = [
+            {"id": 1, "name": "Test User"}
+        ]
+
+        response = self.client.get(
+            "/users",
+            headers={"Authorization": "Bearer ci-users-token"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.get_json(),
+            [{"id": 1, "name": "Test User"}]
+        )
+        mock_db.assert_called_once_with()
+        cursor.execute.assert_called_once_with(
+            "SELECT id, name, email, created_at FROM users"
+        )
+        cursor.close.assert_called_once_with()
+        connection.close.assert_called_once_with()
 
 if __name__ == "__main__":
     unittest.main()

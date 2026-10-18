@@ -42,6 +42,20 @@ def health():
 
 @app.route("/users")
 def users():
+    expected_token = os.environ.get("USERS_API_TOKEN")
+    authorization = request.headers.get("Authorization", "")
+
+    if not expected_token:
+        return jsonify({"error": "Authentication not configured"}), 503
+
+    supplied_token = (
+        authorization[7:]
+        if authorization.startswith("Bearer ")
+        else ""
+    )
+    if not hmac.compare_digest(supplied_token, expected_token):
+        return jsonify({"error": "Unauthorized"}), 401
+
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
 
