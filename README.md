@@ -33,15 +33,21 @@ hosting labels are static text, not monitoring results.
 | `DB_NAME` | Database name |
 | `DB_PORT` | MySQL port; defaults to 3306 |
 | `UPLOAD_API_TOKEN` | Expected bearer token for uploads |
+| `USERS_API_TOKEN` | Expected bearer token for reading users |
 | `AWS_DEFAULT_REGION` | AWS SDK region, such as ap-southeast-2 |
 
 The `/users` route expects a `users` table containing
 `id`, `name`, `email`, and `created_at`.
 
+`GET /api/users` requires an `Authorization: Bearer <USERS_API_TOKEN>`
+header. Missing or invalid tokens return 401; missing server token
+configuration returns 503.
+
 The S3 bucket name is currently hardcoded in `app.py`.
 Boto3 obtains credentials through its standard credential
 provider chain. Use an appropriate IAM role for AWS workloads.
 Never commit credentials, tokens, or `.env` secrets.
+
 
 ## Upload controls
 
@@ -125,7 +131,6 @@ successful checks and the deliberate formatting failure test.
 
 - The backend uses Flask's development server.
 - `/health` does not check MySQL or S3 connectivity.
-- `/users` currently has no application authentication.
 - The frontend contains a `<tittle>` typo.
 - The frontend base image uses the mutable `latest` tag.
 - S3 bucket configuration is hardcoded.
