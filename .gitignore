@@ -3,3 +3,16 @@ venv/
 *.pem
 __pycache__/
 *.pyc
+# Terraform local state and generated files
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+
+# Terraform generated plans
+**/tfplan
+**/plan.txt
