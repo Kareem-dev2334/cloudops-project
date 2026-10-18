@@ -7,7 +7,8 @@ and GitHub Actions CI.
 ## Application architecture
 
 Nginx serves the static frontend on port 80 and proxies API
-requests to `cloudops-backend:5000`.
+requests to Flask on port 5000. The default configuration uses
+`cloudops-backend:5000`; the ECS configuration uses `127.0.0.1:5000`.
 
 | Request to Nginx | Backend route | Purpose |
 |---|---|---|
@@ -18,7 +19,8 @@ requests to `cloudops-backend:5000`.
 | `/health` | `/health` | Basic Flask health response |
 
 The `/api/` prefix is removed before forwarding to Flask.
-The backend hostname must resolve from the Nginx container.
+With the default configuration, the backend hostname must resolve
+from the Nginx container.
 
 The frontend currently makes no API calls. Its status and
 hosting labels are static text, not monitoring results.
@@ -78,6 +80,21 @@ docker build -f Dockerfile.backend -t cloudops-backend:local .
 ```
 
 These commands build images; they do not deploy AWS resources.
+
+For ECS Fargate, where both containers share one task using
+`awsvpc` networking, build the frontend with:
+
+```bash
+docker build -f Dockerfile \
+  --build-arg NGINX_CONFIG=default.ecs.conf \
+  -t cloudops-web:ecs .
+```
+
+The default configuration reaches Flask at `cloudops-backend:5000`.
+The ECS configuration uses `127.0.0.1:5000` within the shared task.
+
+CI builds both frontend variants and checks the ECS Nginx
+configuration syntax.
 
 ## Terraform
 

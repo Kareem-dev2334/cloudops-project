@@ -46,6 +46,14 @@ jobs:
       - name: Build frontend Docker image
         run: docker build -f Dockerfile -t cloudops-web:ci .
 
+      - name: Build ECS frontend Docker image
+        run: |
+          docker build -f Dockerfile \
+            --build-arg NGINX_CONFIG=default.ecs.conf \
+            -t cloudops-web:ecs-ci .
+
+      - name: Validate ECS Nginx configuration
+        run: docker run --rm cloudops-web:ecs-ci nginx -t
 
 
   terraform-check:
