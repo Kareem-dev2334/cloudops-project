@@ -111,16 +111,18 @@ Required checks:
 - `Terraform checks`: formatting, provider initialisation
   without the backend, and configuration validation
 
+
 Both jobs use Ubuntu 24.04. Terraform is pinned to 1.16.5.
 The workflow does not run Terraform plan, apply, or destroy.
+
+Backend tests and the backend Docker image both use Python 3.13.
 
 See [CI verification evidence](CI-VERIFICATION.md) for
 successful checks and the deliberate formatting failure test.
 
 ## Current limitations
 
-- Backend tests run on Python 3.11, while the container uses
-  Python 3.13. Test and runtime versions need alignment.
+
 - The backend uses Flask's development server.
 - `/health` does not check MySQL or S3 connectivity.
 - `/users` currently has no application authentication.
