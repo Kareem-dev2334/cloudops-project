@@ -17,7 +17,7 @@ app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
 # Boto3 uses the IAM role attached to the EC2 instance.
 s3 = boto3.client("s3")
-S3_BUCKET = "cloudops-customer-images-kareem"
+
 
 
 def get_db_connection():
@@ -84,6 +84,10 @@ def upload_file():
     if not hmac.compare_digest(supplied_token, expected_token):
         return jsonify({"error": "Unauthorized"}), 401
 
+    bucket = os.environ.get("S3_BUCKET", "").strip()
+    if not bucket:
+        return jsonify({"error": "Storage not configured"}), 503
+
     if "file" not in request.files:
         return jsonify({"error": "No file provided"}), 400
 
@@ -111,7 +115,7 @@ def upload_file():
     extension = ".jpg" if image.format == "JPEG" else ".png"
     unique_filename = f"{uuid.uuid4()}{extension}"
 
-    s3.upload_fileobj(file, S3_BUCKET, unique_filename)
+    s3.upload_fileobj(file, bucket, unique_filename)
 
     return jsonify({
         "message": "File uploaded successfully",
