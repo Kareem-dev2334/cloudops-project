@@ -50,6 +50,17 @@ Boto3 obtains credentials through its standard credential
 provider chain. Use an appropriate IAM role for AWS workloads.
 Never commit credentials, tokens, or `.env` secrets.
 
+### Backend server
+
+The backend Docker image runs Flask through Gunicorn on port 5000,
+using one synchronous worker. Access logs go to stdout and error logs
+go to stderr.
+
+Local checks verified /health returns 200, unauthenticated /users
+returns 401, and an idle container shuts down on SIGTERM with exit code 0.
+
+This Gunicorn change has not yet been deployed to ECS.
+Running python app.py directly still starts Flask's development server.
 
 ## Upload controls
 
