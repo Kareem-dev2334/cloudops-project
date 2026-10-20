@@ -62,6 +62,13 @@ returns 401, and an idle container shuts down on SIGTERM with exit code 0.
 This Gunicorn change has not yet been deployed to ECS.
 Running python app.py directly still starts Flask's development server.
 
+The backend container runs as appuser (UID/GID 10001).
+Local checks under this user passed all 10 security tests, returned
+200 for /health and 401 for unauthenticated /users, and confirmed
+clean idle shutdown with exit code 0.
+
+The non-root change has not yet been deployed to ECS.
+
 ## Upload controls
 
 `POST /api/upload` expects:
