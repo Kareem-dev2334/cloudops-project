@@ -83,6 +83,13 @@ a UUID-based S3 object key.
 The total HTTP request body is limited to 5 MiB, including
 multipart overhead.
 
+Uploads require S3_BUCKET to contain the destination bucket name.
+After authentication, missing or blank bucket configuration returns
+HTTP 503 with {"error":"Storage not configured"}.
+
+Local tests verify the configured bucket is passed to the mocked S3
+upload call. This configuration change has not yet been deployed to ECS.
+
 ## Containers
 
 - `Dockerfile`: Nginx frontend using `nginx:latest`
