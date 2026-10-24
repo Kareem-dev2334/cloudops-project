@@ -54,4 +54,24 @@ These checks exercised Flask routes directly inside the backend
 container. They did not test Gunicorn, Nginx proxying, public HTTP,
 TLS, load balancing, or sustained traffic.
 
-A live service check of the updated Gunicorn/Nginx path remains pending.
+## Live service check
+
+A separate service test ran revision 4 with normal container startup
+commands and one desired task.
+
+Observed results:
+- Browser GET / loaded the CloudOps Company Portal.
+- GET /health returned HTTP 200 with {"status":"healthy"}.
+- GET /api/users without a token returned HTTP 401 Unauthorized.
+
+Requests reached Nginx through the task's public IP. The configured
+backend startup command uses Gunicorn to serve Flask.
+
+RDS remained stopped during this test. No real API tokens were sent
+over public HTTP. TLS and load balancing were not tested.
+
+## Live service cleanup
+
+After the test, the service showed 0 desired, 0 running, and 0 pending.
+The temporary HTTP rule for the tester's IPv4 /32 was removed.
+Only the existing HTTP rule referencing the ALB security group remained.
