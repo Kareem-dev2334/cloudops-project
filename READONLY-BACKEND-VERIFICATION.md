@@ -48,7 +48,24 @@ exit code 0.
 
 No HTTP requests were tested during this second task.
 
+## Real S3 upload check
 
+Standalone revision 5 task:
+0771819289e447ca8bfe51a6db35bb1f
+
+The check confirmed UID 10001 and a read-only root filesystem.
+Using Flask's internal test client and injected authentication token,
+it uploaded a generated 2x2 PNG through /upload to real S3.
+
+The object was downloaded and its bytes matched the original image.
+The test object was then deleted.
+
+Observed logs:
+- PASS: authenticated upload and S3 read-back under read-only root
+- PASS: test object deleted
+
+Both containers stopped with exit code 0.
+This check did not send the upload through Nginx or Gunicorn.
 
 ## Limits
 
@@ -58,5 +75,5 @@ startup and ECS-triggered shutdown without command overrides.
 
 Public HTTP, TLS, and load balancing were not tested in these checks.
 
-Real RDS queries and S3 uploads were not tested under the read-only
-configuration. Revision 5 has not been deployed to the service.
+Real RDS queries were not tested under the read-only configuration.
+Revision 5 has not been deployed to the service.
