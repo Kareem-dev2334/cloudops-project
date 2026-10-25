@@ -51,6 +51,9 @@ jobs:
       - name: Run security tests inside backend image
         run: |
           docker run --rm \
+            --read-only \
+            --tmpfs /tmp:rw,nosuid,size=16m \
+            --tmpfs /home/appuser:rw,nosuid,size=4m,uid=10001,gid=10001 \
             -e UPLOAD_API_TOKEN=ci-test-token \
             -e AWS_DEFAULT_REGION=ap-southeast-2 \
             -e AWS_EC2_METADATA_DISABLED=true \
@@ -65,6 +68,9 @@ jobs:
           trap 'docker logs backend-smoke; docker rm -f backend-smoke' EXIT
 
           docker run -d --name backend-smoke \
+            --read-only \
+            --tmpfs /tmp:rw,nosuid,size=16m \
+            --tmpfs /home/appuser:rw,nosuid,size=4m,uid=10001,gid=10001 \
             -p 127.0.0.1:5050:5000 \
             -e AWS_DEFAULT_REGION=ap-southeast-2 \
             -e AWS_EC2_METADATA_DISABLED=true \
