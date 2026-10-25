@@ -34,11 +34,29 @@ Both containers stopped with exit code 0.
 The service remained on cloudops-task:4 with 0 desired, 0 running,
 and 0 pending tasks.
 
+## Normal startup and shutdown
+
+A second standalone task used revision 5 without command overrides:
+5914cd404dda4ed7aaf8ca5a8c456aa6
+
+Both containers reached RUNNING. Backend logs confirmed Gunicorn
+started as PID 1, booted its worker, and created its control socket.
+
+After an ECS stop-task request, Gunicorn logged receipt of SIGTERM
+and orderly worker/master shutdown. Both containers stopped with
+exit code 0.
+
+No HTTP requests were tested during this second task.
+
+
+
 ## Limits
 
-The standalone check used a Python command override to launch Gunicorn.
-It did not verify normal ECS startup, ECS stop-signal delivery to
-Gunicorn as PID 1, public HTTP, TLS, or load balancing.
+The first task used a Python command override to launch Gunicorn
+and verify internal HTTP responses. The second task verified normal
+startup and ECS-triggered shutdown without command overrides.
+
+Public HTTP, TLS, and load balancing were not tested in these checks.
 
 Real RDS queries and S3 uploads were not tested under the read-only
 configuration. Revision 5 has not been deployed to the service.
