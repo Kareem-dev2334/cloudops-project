@@ -67,6 +67,24 @@ Observed logs:
 Both containers stopped with exit code 0.
 This check did not send the upload through Nginx or Gunicorn.
 
+## Real RDS query check
+
+Standalone revision 5 task:
+64243e5daab14a8ba35380c7bedf2953
+
+The check confirmed UID 10001 and a read-only root filesystem.
+Using Flask's internal test client and injected authentication token,
+the /users route queried real RDS and returned HTTP 200 with a JSON list.
+
+Observed log:
+PASS: authenticated users route queried RDS under read-only root
+
+Tokens and database records were not printed.
+Both containers stopped with exit code 0.
+RDS stop was requested; the operator subsequently reported it stopped.
+
+This check did not send the request through Nginx or Gunicorn.
+
 ## Limits
 
 The first task used a Python command override to launch Gunicorn
@@ -75,5 +93,4 @@ startup and ECS-triggered shutdown without command overrides.
 
 Public HTTP, TLS, and load balancing were not tested in these checks.
 
-Real RDS queries were not tested under the read-only configuration.
 Revision 5 has not been deployed to the service.
