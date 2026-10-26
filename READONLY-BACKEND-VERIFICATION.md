@@ -98,13 +98,38 @@ with 0 desired, 0 running, and 0 pending tasks.
 No tasks were started during this update.
 This verified service configuration, not live traffic.
 
+## Live service verification
+
+Date: 26 October 2026
+Task: 133909c2039d415f991b892acab207a0
+
+The service ran one revision 5 task with normal startup commands.
+Both containers reached RUNNING.
+
+Through the task's public IP:
+- The operator confirmed the portal loaded in a browser.
+- GET /health returned HTTP 200 with {"status":"healthy"}.
+- GET /api/users without authentication returned HTTP 401
+  with {"error":"Unauthorized"}.
+
+Responses identified Nginx as the HTTP server.
+No real API tokens were sent over public HTTP.
+
+After testing, the service showed 0 desired, 0 running, and 0 pending.
+The temporary tester IPv4 /32 HTTP rule was revoked successfully.
+The service remained configured for revision 5.
+
 ## Limits
 
 The first task used a Python command override to launch Gunicorn
 and verify internal HTTP responses. The second task verified normal
 startup and ECS-triggered shutdown without command overrides.
 
-Public HTTP, TLS, and load balancing were not tested in these checks.
+Public HTTP was tested for the portal, health endpoint, and
+unauthenticated users request. TLS and load balancing were not tested.
+
+Authenticated S3 and RDS checks used Flask's internal test client;
+they were not tested through the public Nginx/Gunicorn path.
 
 The service references revision 5 while scaled to zero.
 Live service traffic under revision 5 remains untested.
