@@ -22,8 +22,9 @@ The `/api/` prefix is removed before forwarding to Flask.
 With the default configuration, the backend hostname must resolve
 from the Nginx container.
 
-The frontend currently makes no API calls. Its status and
-hosting labels are static text, not monitoring results.
+The frontend includes an on-demand health check that requests /health
+through Nginx. It displays the result and check time.
+This check does not query RDS or S3.
 
 ## Backend configuration
 
@@ -183,7 +184,6 @@ successful checks and the deliberate formatting failure test.
 - Authenticated S3 and RDS checks used Flask's internal test client,
   rather than the public Nginx/Gunicorn path.
 - `/health` does not check MySQL or S3 connectivity.
-- The frontend contains a `<tittle>` typo.
 - The frontend base image uses the mutable `latest` tag.
 - Local startup, database schema setup, and AWS deployment
   instructions still need verification.
