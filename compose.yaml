@@ -1,0 +1,44 @@
+name: cloudops-local
+
+services:
+  cloudops-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,size=16m
+      - /home/appuser:rw,nosuid,size=4m,uid=10001,gid=10001
+    environment:
+      AWS_DEFAULT_REGION: ap-southeast-2
+      AWS_EC2_METADATA_DISABLED: "true"
+      USERS_API_TOKEN: local-preview-only
+      UPLOAD_API_TOKEN: local-preview-only
+    stop_grace_period: 30s
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - |
+          import json
+          import urllib.request
+          with urllib.request.urlopen("http://127.0.0.1:5000/health", timeout=2) as response:
+              assert response.status == 200
+              assert json.load(response)["status"] == "healthy"
+      interval: 5s
+      timeout: 3s
+      retries: 6
+      start_period: 10s
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NGINX_CONFIG: default.conf
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      cloudops-backend:
+        condition: service_healthy

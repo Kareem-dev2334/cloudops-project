@@ -130,6 +130,51 @@ The ECS configuration uses `127.0.0.1:5000` within the shared task.
 CI builds both frontend variants and checks the ECS Nginx
 configuration syntax.
 
+## Local preview with Docker Compose
+
+Requires Docker Engine and Docker Compose v2.
+
+From the repository root, validate and start:
+
+```bash
+sudo docker compose config --quiet
+sudo docker compose up --build -d
+sudo docker compose ps
+```
+
+Open http://127.0.0.1:8080 in the browser on the Docker host.
+For VirtualBox, use the browser inside Ubuntu.
+
+The backend uses a read-only root filesystem with writable temporary
+mounts. Nginx starts after the backend health check passes.
+Only Nginx is published to the host, on loopback port 8080.
+
+Verify:
+
+```bash
+curl -i --max-time 10 http://127.0.0.1:8080/health
+curl -i --max-time 10 http://127.0.0.1:8080/api/users
+```
+
+Expected results: HTTP 200 for health and HTTP 401 for the
+unauthenticated users request. The portal's Check backend button
+should report Backend healthy.
+
+This preview uses public local-only test tokens. No database,
+S3 bucket, or AWS credentials are configured by compose.yaml.
+It does not provide working authenticated database queries or uploads.
+
+Stop and remove the containers and network:
+
+```bash
+sudo docker compose down
+sudo docker compose ps -a
+```
+
+Local validation, image builds, backend health, HTTP responses,
+the browser health button, and cleanup were verified on
+26 October 2026 using Docker Compose 2.40.3.
+
 ## Terraform
 
 The verified VPC configuration is in `terraform-vpc-lab/`,
@@ -185,8 +230,8 @@ successful checks and the deliberate formatting failure test.
   rather than the public Nginx/Gunicorn path.
 - `/health` does not check MySQL or S3 connectivity.
 - The frontend base image uses the mutable `latest` tag.
-- Local startup, database schema setup, and AWS deployment
-  instructions still need verification.
+- Database schema setup and complete AWS deployment instructions
+  still need verification.
 - Passing CI does not prove production readiness, live service
   connectivity, or infrastructure security.
 
