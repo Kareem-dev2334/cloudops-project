@@ -85,6 +85,19 @@ RDS stop was requested; the operator subsequently reported it stopped.
 
 This check did not send the request through Nginx or Gunicorn.
 
+## Service configuration update
+
+Date: 26 October 2026
+
+The service was updated from cloudops-task:4 to cloudops-task:5
+with desired count 0.
+
+A subsequent query confirmed revision 5's primary rollout was COMPLETED,
+with 0 desired, 0 running, and 0 pending tasks.
+
+No tasks were started during this update.
+This verified service configuration, not live traffic.
+
 ## Limits
 
 The first task used a Python command override to launch Gunicorn
@@ -93,4 +106,5 @@ startup and ECS-triggered shutdown without command overrides.
 
 Public HTTP, TLS, and load balancing were not tested in these checks.
 
-Revision 5 has not been deployed to the service.
+The service references revision 5 while scaled to zero.
+Live service traffic under revision 5 remains untested.
