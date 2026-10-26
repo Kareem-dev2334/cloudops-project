@@ -38,8 +38,21 @@ The operator subsequently reported all service task counts were zero.
 Temporary HTTP rule sgr-081f6f49552f10e50 was revoked successfully.
 The service remained configured for revision 6.
 
+## Local health failure and recovery
+
+The health button initially reported Backend healthy.
+After stopping the local backend container, another check reported
+Health check failed.
+
+After restarting the backend, another check reported Backend healthy.
+The local preview containers and network were removed afterward.
+
+This verified failure and recovery locally, not on ECS.
+
 ## Limits
 
 The health endpoint does not query RDS or S3.
-Authenticated API operations, TLS, load balancing, sustained traffic,
-and the health button's failure state were not tested in this exercise.
+Authenticated API operations, TLS, load balancing, and sustained
+traffic were not tested in this exercise.
+The health button's failure and recovery states were tested locally,
+not on ECS.
