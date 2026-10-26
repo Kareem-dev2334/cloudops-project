@@ -37,6 +37,7 @@ hosting labels are static text, not monitoring results.
 | `UPLOAD_API_TOKEN` | Expected bearer token for uploads |
 | `USERS_API_TOKEN` | Expected bearer token for reading users |
 | `AWS_DEFAULT_REGION` | AWS SDK region, such as ap-southeast-2 |
+| `S3_BUCKET` | Destination bucket for image uploads |
 
 The `/users` route expects a `users` table containing
 `id`, `name`, `email`, and `created_at`.
@@ -45,29 +46,35 @@ The `/users` route expects a `users` table containing
 header. Missing or invalid tokens return 401; missing server token
 configuration returns 503.
 
-The S3 bucket name is currently hardcoded in `app.py`.
+The S3 bucket name comes from the `S3_BUCKET` environment variable.
 Boto3 obtains credentials through its standard credential
 provider chain. Use an appropriate IAM role for AWS workloads.
 Never commit credentials, tokens, or `.env` secrets.
 
 ### Backend server
 
-The backend Docker image runs Flask through Gunicorn on port 5000,
+The backend Docker image serves Flask through Gunicorn on port 5000,
 using one synchronous worker. Access logs go to stdout and error logs
-go to stderr.
+go to stderr. The image runs as appuser (UID/GID 10001).
 
-Local checks verified /health returns 200, unauthenticated /users
-returns 401, and an idle container shuts down on SIGTERM with exit code 0.
+ECS task revision 5 configures the backend with a read-only root
+filesystem and writable tmpfs mounts at /tmp (16 MiB) and
+/home/appuser (4 MiB).
 
-This Gunicorn change has not yet been deployed to ECS.
-Running python app.py directly still starts Flask's development server.
+Verification covered all 12 security tests locally and in CI,
+normal Gunicorn startup and shutdown on Fargate, and real S3 uploads
+and RDS queries through Flask's internal test client.
 
-The backend container runs as appuser (UID/GID 10001).
-Local checks under this user passed all 10 security tests, returned
-200 for /health and 401 for unauthenticated /users, and confirmed
-clean idle shutdown with exit code 0.
+Live service checks confirmed the portal loaded, /health returned
+200, and unauthenticated /api/users returned 401 through Nginx.
 
-The non-root change has not yet been deployed to ECS.
+After testing on 26 October 2026, the service remained configured
+for revision 5 with zero desired, running, and pending tasks.
+
+Running `python app.py` directly starts Flask's development server.
+
+See [read-only backend verification](READONLY-BACKEND-VERIFICATION.md)
+for evidence and test limitations.
 
 ## Upload controls
 
@@ -88,13 +95,14 @@ After authentication, missing or blank bucket configuration returns
 HTTP 503 with {"error":"Storage not configured"}.
 
 Local tests verify the configured bucket is passed to the mocked S3
-upload call. This configuration change has not yet been deployed to ECS.
+upload call. A revision 5 Fargate check also verified a real upload,
+matching-byte read-back, and deletion of the test object.
 
 ## Containers
 
 - `Dockerfile`: Nginx frontend using `nginx:latest`
 - `Dockerfile.backend`: Python 3.13 slim backend
-- Backend startup: `python app.py`, listening on port 5000
+- Backend startup: Gunicorn serving `app:app` on port 5000
 - Python dependencies are pinned in `requirements.txt`
 
 Build locally from the repository root:
@@ -171,11 +179,12 @@ successful checks and the deliberate formatting failure test.
 ## Current limitations
 
 
-- The backend uses Flask's development server.
+- TLS and load balancing remain untested.
+- Authenticated S3 and RDS checks used Flask's internal test client,
+  rather than the public Nginx/Gunicorn path.
 - `/health` does not check MySQL or S3 connectivity.
 - The frontend contains a `<tittle>` typo.
 - The frontend base image uses the mutable `latest` tag.
-- S3 bucket configuration is hardcoded.
 - Local startup, database schema setup, and AWS deployment
   instructions still need verification.
 - Passing CI does not prove production readiness, live service
