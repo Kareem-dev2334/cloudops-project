@@ -20,6 +20,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
+      - name: Test health-check summary
+        run: bash scripts/health-checks/test-summarize-retries.sh
+
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
