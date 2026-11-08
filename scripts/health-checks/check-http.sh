@@ -7,7 +7,9 @@ fi
 
 url="$1"
 
-if curl --fail --silent --show-error --max-time 10 "$url"; then
+if curl --fail --silent --show-error --max-time 10 \
+    --write-out '\nHTTP %{http_code} | Total: %{time_total}s\n' \
+    "$url"; then
   echo
   echo "HTTP check passed"
   exit 0

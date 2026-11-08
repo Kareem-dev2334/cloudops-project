@@ -32,6 +32,8 @@ The summary reports total, passed, and failed runs, plus the failure rate. It pr
 
 ## Log locations
 
+Each retry log entry includes the HTTP status and elapsed time for the final attempt. The time is in seconds and covers that attempt only. HTTP 000 means curl received no HTTP status; the duration then shows how long the attempt took to fail.
+
 By default, both logs are stored outside the repository, under `$XDG_STATE_HOME/cloudops` if `XDG_STATE_HOME` is set and nonempty, or under `$HOME/.local/state/cloudops` otherwise.
 
 | Log | Contents | Output path override |
