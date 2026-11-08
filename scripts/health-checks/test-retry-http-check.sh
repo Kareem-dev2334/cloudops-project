@@ -21,8 +21,9 @@ EOF
 
 TEST_CALLS_FILE="$test_dir/calls.log" \
 RETRY_LOG_FILE="$test_dir/retry.log" \
-    bash "$test_dir/retry-http-check.sh" "http://127.0.0.1:8080/health"
+    bash "$test_dir/retry-http-check.sh" "http://127.0.0.1:8080/health" 2> "$test_dir/stderr.log"
 
 test "$(wc -l < "$test_dir/calls.log")" -eq 2
 grep -E 'HTTP 200 \| Total: 0\.125000s \| Result: 0 +Attempt: 2 *$' "$test_dir/retry.log"
+grep -Fx 'Warning: healthy response took 0.125000s (threshold: 0.100s)' "$test_dir/stderr.log"
 echo "Retry recovery test passed"

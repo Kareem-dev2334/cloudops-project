@@ -35,7 +35,19 @@ for attempt in 1 2 3; do
     fi
 done
 
+
+
 echo "Final result: $result"
 timing=$(printf '%s\n' "$check_output" | grep -E '^HTTP [0-9]{3} \| Total: [0-9.]+s$' | tail -n 1)
+
+if [ "$result" -eq 0 ] && [ -n "$timing" ]; then
+    elapsed=${timing##*Total: }
+    elapsed=${elapsed%s}
+
+    if LC_ALL=C awk -v seconds="$elapsed" 'BEGIN { exit !(seconds >= 0.100) }'; then
+        echo "Warning: healthy response took ${elapsed}s (threshold: 0.100s)" >&2
+    fi
+fi
+
 echo "[$(date '+%F %T')] URL: $1 | ${timing:-Timing unavailable} | Result: $result  Attempt: $attempt" >> "$log_file"
 exit "$result"
