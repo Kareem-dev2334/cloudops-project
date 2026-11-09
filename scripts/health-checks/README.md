@@ -30,6 +30,8 @@ tail -n 1 "$state_dir/retry-summary.log"
 
 The summary reports total, passed, and failed runs, plus the failure rate. It prints a warning when at least half the recorded runs failed. That warning describes the log’s history; the latest health check may have passed. An empty log shows `N/A` for the failure rate.
 
+Passed after retry counts successful runs that needed attempt 2 or 3. These runs are already included in Passed. A rise in this count can reveal intermittent failures even when the overall failure rate stays low.
+
 ## Log locations
 
 Each retry log entry includes the HTTP status and elapsed time for the final attempt. The time is in seconds and covers that attempt only. HTTP 000 means curl received no HTTP status; the duration then shows how long the attempt took to fail.
