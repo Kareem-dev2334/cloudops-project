@@ -20,6 +20,7 @@ fi
 
 result_count=$(grep -c "Result: 1" "$log_file")
 success_count=$(grep -c "Result: 0" "$log_file")
+recovered_count=$(grep -Ec 'Result: 0 +Attempt: [23][[:space:]]*$' "$log_file")
 total_count=$((result_count + success_count))
 
 if [ "$total_count" -gt 0 ]; then
@@ -32,4 +33,4 @@ else
     failure_percent="N/A"
 fi
 
-echo "$(date '+%F %T') Total: $total_count | Passed: $success_count | Failed: $result_count Source: $log_file | Failure rate: $failure_percent" >> "$summary_file"
+echo "$(date '+%F %T') Total: $total_count | Passed: $success_count | Failed: $result_count Source: $log_file | Failure rate: $failure_percent | Passed after retry: $recovered_count" >> "$summary_file"
