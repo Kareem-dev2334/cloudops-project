@@ -47,3 +47,14 @@ or application availability.
 
 No ECS tasks or RDS instances were started for this exercise.
 No CPU alarm remains deployed after cleanup.
+
+## Read-only review — 9 November 2026
+
+In `ap-southeast-2`, `cloudops-service` referenced `cloudops-task:6` with
+zero desired, running, and pending tasks. Both containers were configured
+to use `awslogs` with `/ecs/cloudops-task`. The log group had 30-day retention.
+
+Historical logs from 26 October showed Nginx forwarding `/api/users` to
+the backend as `/users`, which returned `401`. Both containers logged
+`/health` returning `200`. Database connectivity was not tested, and no
+ECS tasks were started during this review.
