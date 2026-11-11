@@ -32,7 +32,7 @@ that its application works.
 
 1. Confirm the intended Git commit is merged and required CI checks pass.
 2. Confirm the AWS account and region.
-3. Record the service's current task-definition revision and task counts.
+3. Record the service’s current task-definition ARN and task counts. Separately record the reviewed rollback candidate’s ARN and the evidence that it passed a live check.
 4. Check that the intended and rollback images remain available in ECR.
 5. Review the task-definition changes before registering a revision.
 6. Agree on test duration and cleanup before starting chargeable resources.
@@ -163,7 +163,11 @@ Do not repeatedly launch tasks without inspecting why earlier ones failed.
 
 ## Rollback
 
-The rollback target is the revision recorded before the release.
+Record the service's current task-definition revision before the release.
+Select a rollback candidate separately. Confirm it passed a previous live
+check, its images are still available in ECR, and its configuration is
+compatible with the current environment. If no suitable candidate is
+available, pause the release.
 Do not automatically select revision 3 or assume the previous number
 is the correct candidate.
 
