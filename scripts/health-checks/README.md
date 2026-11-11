@@ -20,6 +20,19 @@ The retry script makes up to three attempts. It waits two seconds between failed
 | `1` | All attempts failed, or the script could not complete setup (for example, the helper script was missing). |
 | `2` | The script was called without exactly one URL argument. |
 
+## Gate a local release
+
+Run the gate against the candidate's health endpoint before continuing:
+
+```bash
+bash scripts/health-checks/release-gate.sh "http://127.0.0.1:8080/health" &&
+    echo "Candidate passed; continue to the next step"
+```
+
+Exit `0` allows the next command to run. A failed retry check returns
+`1` and blocks it. An incorrect number of arguments returns `2`.
+The gate reports a decision; it does not deploy or roll back the release.
+
 ## Summarize the results
 
 ```bash
