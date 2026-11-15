@@ -29,6 +29,9 @@ jobs:
       - name: Test local release safety guard
         run: bash scripts/health-checks/test-local-release-guard.sh
 
+      - name: Test local release cleanup failure
+        run: bash scripts/health-checks/test-local-release-cleanup.sh
+
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
