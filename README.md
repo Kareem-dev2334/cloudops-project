@@ -175,6 +175,30 @@ Local validation, image builds, backend health, HTTP responses,
 the browser health button, and cleanup were verified on
 26 October 2026 using Docker Compose 2.40.3.
 
+## Local release demo
+
+From the repository root, with port `8080` free:
+
+```bash
+bash scripts/health-checks/local-release-check.sh
+echo "Workflow exit code: $?"
+```
+
+A healthy `/health` response passes the release gate. For a rejection demo,
+run the same workflow with `RELEASE_GATE_URL=http://127.0.0.1:9999/health`,
+assuming nothing is listening on that port. The healthy run exits `0`; the
+rejected run exits `1`. After either run, verify cleanup with
+`sudo docker compose -p cloudops-release-lab ps -a`: there should be no
+container rows.
+
+In a separate manual rollback drill, pointing Nginx at the wrong backend
+port caused three HTTP `502` responses. Restoring the original configuration
+and recreating only the web container brought `/health` back to HTTP `200`.
+
+See the [health-check tools](scripts/health-checks/README.md) for workflow
+details and the [local outage runbook](LOCAL-OUTAGE-RUNBOOK.md) for diagnosis
+and recovery checks. The demo uses no AWS resources.
+
 ## Terraform
 
 The verified VPC configuration is in `terraform-vpc-lab/`,
