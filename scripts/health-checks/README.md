@@ -33,6 +33,24 @@ Exit `0` allows the next command to run. A failed retry check returns
 `1` and blocks it. An incorrect number of arguments returns `2`.
 The gate reports a decision; it does not deploy or roll back the release.
 
+## Run the local release workflow
+
+From the repository root, with port `8080` free:
+
+```bash
+bash scripts/health-checks/local-release-check.sh
+echo "Workflow exit code: $?"
+```
+
+The workflow starts a dedicated Compose project named `cloudops-release-lab`,
+runs the health gate, and removes the lab containers whether the gate passes
+or fails. It refuses to run if that project already has containers.
+A passing gate returns `0` if cleanup succeeds; a failed gate keeps its
+nonzero exit code after cleanup.
+
+To test rejection, set `RELEASE_GATE_URL=http://127.0.0.1:9999/health`
+when running the script. This lab runs locally and uses no AWS resources.
+
 ## Summarize the results
 
 ```bash
