@@ -26,6 +26,9 @@ jobs:
       - name: Test HTTP retry recovery
         run: bash scripts/health-checks/test-retry-http-check.sh
 
+      - name: Test local release safety guard
+        run: bash scripts/health-checks/test-local-release-guard.sh
+
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
