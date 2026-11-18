@@ -32,6 +32,9 @@ jobs:
       - name: Test local release cleanup failure
         run: bash scripts/health-checks/test-local-release-cleanup.sh
 
+      - name: Test paused rollback verification
+        run: bash scripts/deployment/test-verify-paused-rollback.sh
+
       - name: Set up Python
         uses: actions/setup-python@v7
         with:

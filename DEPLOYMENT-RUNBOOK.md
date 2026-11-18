@@ -182,6 +182,23 @@ For this paused lab:
 Switching configuration at zero tasks does not prove live recovery,
 zero downtime, recovery time, or automatic rollback.
 
+### Check a paused rollback snapshot
+
+Run from the repository root with values recorded from the service:
+
+```bash
+bash scripts/deployment/verify-paused-rollback.sh \
+  EXPECTED_REV ACTUAL_REV DESIRED RUNNING PENDING ROLLOUT_STATE
+```
+
+Exit `0` means the supplied revisions match, all three task counts are
+zero, and the rollout state is `COMPLETED`. Exit `1` means a value is
+invalid or a configuration check failed. Exit `2` means the argument
+count is incorrect.
+
+This checker evaluates supplied values only. It does not query AWS,
+select a rollback candidate, modify ECS, or verify live application recovery.
+
 ## Cleanup after every live test
 
 Run even if application checks fail:
